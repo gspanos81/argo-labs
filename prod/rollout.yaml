@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout 
+metadata:
+  labels:
+    app: vote
+    tier: front
+  name: vote
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: vote
+  strategy:
+    blueGreen: null
+    canary:
+      steps:
+      - setWeight: 20
+      - pause:
+          duration: 40s
+      - setWeight: 40
+      - pause:
+          duration: 50s
+      - setWeight: 60
+      - pause:
+          duration: 60s
+      - setWeight: 80
+      - pause:
+          duration: 70s
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: vote
+        tier: front
+    spec:
+      containers:
+      - image: schoolofdevops/vote:v2
+        name: vote
+        imagePullPolicy: Always
+        resources: 
+          requests:
+            cpu: "50m"
+            memory: "128Mi"
+          limits: 
+            cpu: "250m"
+            memory: "1Gi"
+
